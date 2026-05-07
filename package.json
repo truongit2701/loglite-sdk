@@ -1,9 +1,21 @@
 {
   "name": "@truogvanzzzzz/loglite-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Professional logging SDK for LogLite platform",
-  "main": "src/index.ts",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
     "axios": "^1.6.0"
   },

@@ -2,8 +2,8 @@ import axios, { type AxiosInstance } from 'axios';
 
 export interface LogLiteConfig {
   apiKey: string;
+  ingestUrl: string;
   service?: string;
-  ingestUrl?: string;
   env?: 'development' | 'production' | 'staging' | string;
 }
 
@@ -32,8 +32,13 @@ class LogLiteLogger {
   constructor(config: LogLiteConfig) {
     this.apiKey = config.apiKey;
     this.service = config.service || 'default-service';
-    this.ingestUrl = (config.ingestUrl || 'http://localhost:3001').replace(/\/$/, '');
     this.env = config.env || 'development';
+    
+    // Ràng buộc ingestUrl phải có giá trị
+    if (!config.ingestUrl) {
+      throw new Error('[LogLite SDK] Missing required "ingestUrl" in configuration.');
+    }
+    this.ingestUrl = config.ingestUrl.replace(/\/$/, '');
 
     this.apiClient = axios.create({
       baseURL: this.ingestUrl,

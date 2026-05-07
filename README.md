@@ -1,89 +1,86 @@
 # 🚀 LogLite SDK
 
-The ultimate lightweight logging SDK for Node.js and Express applications. Automatically capture errors, track performance, and monitor your services in real-time with zero configuration overhead.
+The professional, high-performance logging SDK for the LogLite platform. Secure, centralized, and easy to integrate.
 
 ## 📦 Installation
 
 ```bash
-npm install loglite-sdk
+npm install @truogvanzzzzz/loglite-sdk
 # or
-yarn add loglite-sdk
+yarn add @truogvanzzzzz/loglite-sdk
 ```
 
 ## 🛠️ Quick Start
 
-Initialize the logger with your project's API Key.
+Initialize the logger with your project's **API Key** and **Ingest URL** (obtained from the LogLite Dashboard).
 
-```javascript
-import LogLite from 'loglite-sdk';
+```typescript
+import { createLogger } from '@truogvanzzzzz/loglite-sdk';
 
-const logger = new LogLite({
+const logger = createLogger({
   apiKey: 'your-project-api-key',
-  service: 'auth-service',
-  env: 'production' // Optional: development (default) | production | staging
+  ingestUrl: 'https://logs.your-domain.com', // Mandatory: Your LogLite server URL
+  service: 'inventory-service',
+  env: 'production'
 });
 
-// Start logging
-logger.info('Application started successfully');
-logger.warn('Database connection latency detected', { latency: '200ms' });
-logger.error('Failed to process payment', { userId: '123', amount: 500 });
+// Best Practice: Verify connection on startup
+await logger.init();
+
+// Simple logging
+logger.info('User logged in', { userId: 'user_123' });
+logger.error('Payment failed', { amount: 50, currency: 'USD' });
 ```
 
-## 🚄 Express.js Integration (Auto-Capture)
+## 🌐 Express.js Integration
 
-LogLite can automatically capture all runtime errors in your Express application. Simply add the middleware at the **end** of your route definitions.
+Automatically capture all unhandled errors and request-related logs.
 
 ```javascript
 import express from 'express';
-import LogLite from 'loglite-sdk';
+import { createLogger } from '@truogvanzzzzz/loglite-sdk';
 
 const app = express();
-const logger = new LogLite({ apiKey: 'YOUR_API_KEY', service: 'web-api' });
-
-app.get('/crash', (req, res) => {
-  throw new Error('Something went wrong!'); // This will be auto-captured
+const logger = createLogger({ 
+  apiKey: 'YOUR_API_KEY', 
+  ingestUrl: 'http://localhost:3001',
+  service: 'web-api' 
 });
 
-// --- MUST BE ADDED AFTER ALL ROUTES ---
+// 1. Handshake with server
+await logger.init();
+
+app.use(express.json());
+
+// 2. Use middleware to capture request errors
+app.use(logger.middleware());
+
+app.get('/', (req, res) => {
+  logger.info('Visited home');
+  res.send('Hello World');
+});
+
+// 3. Error handler middleware (Place at the END)
 app.use(logger.errorHandler());
 
 app.listen(3000);
 ```
 
+## ⚙️ Configuration
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `apiKey` | `string` | **Yes** | Your project's unique API key. |
+| `ingestUrl` | `string` | **Yes** | The URL of your LogLite ingestion server. |
+| `service` | `string` | No | Name of the service (default: `default-service`). |
+| `env` | `string` | No | Environment (e.g., `production`, `development`). |
+
 ## 🛡️ Features
 
-### 1. Global Error Handlers
-The SDK automatically hooks into `process.on('uncaughtException')` and `process.on('unhandledRejection')`. Even if your code crashes outside of an Express route, LogLite will record the stack trace before the process exits.
-
-### 2. Automatic Metadata
-Every log captured via the `errorHandler()` middleware automatically includes:
-- **URL & Method**
-- **Request Headers**
-- **Query Parameters**
-- **Client IP**
-- **Full Stack Trace** (for errors)
-
-### 3. Infinite Loop Prevention
-The SDK includes built-in safeguards to ensure that if the logging server itself is down, the SDK won't enter an infinite retry loop that crashes your application.
-
-## 📖 API Reference
-
-### `new LogLite(config)`
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `apiKey` | String | Yes | Your project API Key from the LogLite Dashboard. |
-| `service` | String | No | The name of your service (default: `default-service`). |
-| `env` | String | No | Environment tag (default: `development`). |
-| `ingestUrl` | String | No | Custom ingest URL for self-hosted instances. |
-
-### `logger.info(message, meta)`
-### `logger.warn(message, meta)`
-### `logger.error(message, meta)`
-### `logger.debug(message, meta)`
-
-- `message`: (String) The log message.
-- `meta`: (Object) Optional custom metadata to include with the log.
+- **Centralized Storage**: Logs are securely stored in a high-performance central database.
+- **Auto-Capture**: Automatically captures `Uncaught Exceptions` and `Unhandled Rejections`.
+- **Async & Non-blocking**: Uses internal queuing and batching to ensure zero impact on application performance.
+- **Type-Safe**: Built with TypeScript for a superior developer experience.
 
 ---
-
-Built with ❤️ by the LogLite Team.
+© 2026 LogLite Platform. All rights reserved.

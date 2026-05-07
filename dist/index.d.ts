@@ -1,13 +1,13 @@
-interface LogLiteConfig {
+export interface LogLiteConfig {
     apiKey: string;
     service?: string;
     ingestUrl?: string;
     env?: 'development' | 'production' | 'staging' | string;
 }
-interface LogMeta {
+export interface LogMeta {
     [key: string]: any;
 }
-interface LogEntry {
+export interface LogEntry {
     message: string;
     level: 'info' | 'warn' | 'error' | 'debug';
     service: string;
@@ -24,6 +24,10 @@ declare class LogLiteLogger {
     private isFlushing;
     private apiClient;
     constructor(config: LogLiteConfig);
+    /**
+     * Kiểm tra kết nối và API Key ngay lập tức
+     */
+    init(): Promise<boolean>;
     private setupGlobalHandlers;
     private flush;
     private log;
@@ -35,6 +39,5 @@ declare class LogLiteLogger {
     errorHandler(): (err: any, req: any, res: any, next: any) => void;
     middleware(): (err: any, req: any, res: any, next: any) => void;
 }
-declare const createLogger: (config: LogLiteConfig) => LogLiteLogger;
-
-export { type LogEntry, type LogLiteConfig, type LogMeta, createLogger, LogLiteLogger as default };
+export declare const createLogger: (config: LogLiteConfig) => LogLiteLogger;
+export default LogLiteLogger;
